@@ -14,6 +14,12 @@ urlpatterns = [
     url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', views.MobileCountView.as_view()),
 
     # 用户登录
-    url(r'^login/$', views.LoginView.as_view())
+    url(r'^login/$', views.LoginView.as_view(), name='login'),
+
+    # 用户退出
+    url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
+
+    # 用户个人中心
+    url(r'^info/$', views.UserInfoView.as_view(), name='info')
 
 ]

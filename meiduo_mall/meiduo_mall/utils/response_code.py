@@ -74,7 +74,7 @@ class RETCODE:
     OPENIDERR           = "5005"
     PARAMERR            = "5006"
     STOCKERR            = "5007"
-
+    SERVERERR           = "5008"
 
 err_msg = {
     RETCODE.OK                 : u"成功",
@@ -96,4 +96,6 @@ err_msg = {
     RETCODE.OPENIDERR          : u"无效的openid",
     RETCODE.PARAMERR           : u"参数错误",
     RETCODE.STOCKERR           : u"库存不足",
+    RETCODE.SERVERERR           : u"服务器不可用",
+
 }

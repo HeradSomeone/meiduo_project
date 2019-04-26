@@ -1,14 +1,18 @@
 import re
+
+from django.http import request
+
 from .models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django import http
 from django.views import View
 from django.db import DatabaseError
 import logging
-from django.contrib.auth import login,authenticate
+from django.contrib.auth import login, authenticate, logout
 from meiduo_mall.utils.response_code import RETCODE
 from django_redis import get_redis_connection
 from django.conf import settings
+from django.contrib.auth import mixins
 logger = logging.getLogger('django')  # 创建日志输出器
 
 
@@ -76,10 +80,11 @@ class RegisterView(View):
 
         login(request, user)  # 存储用户的ID到session中记录它到登录状态
 
+        response = redirect('/')
+        response.set_cookie('username', user.username, max_age=settings.SESSION_COOKIE_AGE)
         # 重定向到首页
 
-        return redirect('/')
-
+        return response
 
 class UsernameCountView(View):
     '''判断用户名是否已注册'''
@@ -123,11 +128,47 @@ class LoginView(View):
         if user is None:
             return render(request, 'login.html', {'account_errmsg': '用户名或密码错误'})
 
-        if remembered != "on":
-            settings.SESSION_COOKIE_AGE = 0 # 修改Django缓存时间 未勾选保存账号密码浏览器会话结束过期，勾选默认两周
+        # if remembered != "on":
+        #     settings.SESSION_COOKIE_AGE = 0 # 修改Django缓存时间 未勾选保存账号密码浏览器会话结束过期，勾选默认两周
+
+        # # 状态保持
+        # login(request, user)
+
+
         # 状态保持
         login(request, user)
 
+        if remembered != 'on':
+            request.session.set_expiry(0)
+
+        response = redirect(request.GET.get('next'), '/')
+        response.set_cookie('username', user.username, max_age=settings.SESSION_COOKIE_AGE)
         # 响应结果重定向到首页
 
-        return redirect('/')
+        return response
+
+
+class LogoutView(View):
+    '''退出登录'''
+    def get(self,request):
+
+        # 清除状态保持的session数据
+        logout(request)
+
+        # 重定向到login界面
+        response = redirect(reverse('contents:index'))
+        # 清除username的cookie
+        response.delete_cookie('username')
+
+        return response
+
+class UserInfoView(mixins.LoginRequiredMixin, View):
+
+    def get(self, request):
+        '''提供个人信息页面'''
+
+        # 判断是否登录（mixins.LoginRequiredMixin），登录返回用户中心界面，没有登录返回登录界面登录后进入用户中心
+
+        # 渲染用户中心页面
+
+        return render(request, 'user_center_info.html')
