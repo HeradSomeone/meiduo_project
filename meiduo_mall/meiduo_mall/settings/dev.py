@@ -155,6 +155,13 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "verify_code": { # 存储验证码
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://192.168.79.137:6379/2",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache" # 配置session使用缓存
 SESSION_CACHE_ALIAS = "session" # 缓存到redis
@@ -204,3 +211,6 @@ LOGGING = {
 
 # 指定Django认证用户模型类： 应用名.模型名
 AUTH_USER_MODEL = 'users.User'
+
+# 指定Django登录认证后端
+AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileAuthBackend']
