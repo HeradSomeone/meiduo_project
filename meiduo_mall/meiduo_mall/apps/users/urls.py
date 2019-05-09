@@ -20,6 +20,30 @@ urlpatterns = [
     url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
 
     # 用户个人中心
-    url(r'^info/$', views.UserInfoView.as_view(), name='info')
+    url(r'^info/$', views.UserInfoView.as_view(), name='info'),
+
+    # 添加邮箱
+    url(r'^emails/$', views.EmailView.as_view(), name='emails'),
+
+    # 激活邮箱
+    url(r'^emails/verification/$', views.VerifyEmailView.as_view()),
+
+    # 收货地址
+    url(r'^addresses/$', views.AddressView.as_view()),
+
+    # 创建收货地址
+    url(r'^addresses/create/$', views.CreateAddressView.as_view()),
+
+    # 修改及删除收货地址
+    url(r'^addresses/(?P<address_id>\d+)/$', views.UpdateDestroyAddressView.as_view()),
+
+    # 设置默认地址
+    url(r'^addresses/(?P<address_id>\d+)/default/$', views.DefaultAddressView.as_view()),
+
+    # 修改地址标题
+    url(r'^addresses/(?P<address_id>\d+)/title/$', views.UpdateTitleAddressView.as_view()),
+
+    # 修改密码
+    url(r'^password/$', views.ChangePasswordView.as_view()),
 
 ]
