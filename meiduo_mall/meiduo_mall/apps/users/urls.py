@@ -46,4 +46,7 @@ urlpatterns = [
     # 修改密码
     url(r'^password/$', views.ChangePasswordView.as_view()),
 
+    # 用户浏览记录
+    url(r'^browse_histories/$', views.UserBrowseHistory.as_view()),
+
 ]

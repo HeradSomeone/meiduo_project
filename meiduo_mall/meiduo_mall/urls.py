@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^', include('oauth.urls', namespace='oauth')), # QQ登录模块
     url(r'^', include('areas.urls', namespace='areas')), # 收货地址模块
     url(r'^', include('goods.urls', namespace='goods')), # 商品模块
+    url(r'^search/', include('haystack.urls')), # 搜索模块
 
 
 ]

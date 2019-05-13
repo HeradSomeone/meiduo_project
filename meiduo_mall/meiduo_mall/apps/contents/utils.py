@@ -13,7 +13,7 @@ from goods.models import GoodsChannel
 
 
                }
-               """
+"""
 
 def get_categories():
     """返回商品类别数据"""

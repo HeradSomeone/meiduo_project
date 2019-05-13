@@ -11,6 +11,7 @@ from django_redis import get_redis_connection
 from django.conf import settings
 from django.contrib.auth import mixins
 
+from goods.models import SKU
 from meiduo_mall.utils.views import LoginRequiredView
 from .models import User, Address
 from meiduo_mall.utils.response_code import RETCODE
@@ -247,11 +248,11 @@ class AddressView(LoginRequiredMixin, View):
                 'id': address.id,
                 'title': address.title,
                 'receiver': address.receiver,
-                # 'province_id': address.province_id,
+                'province_id': address.province_id,
                 'province': address.province.name,
-                # 'city_id': address.city_id,
+                'city_id': address.city_id,
                 'city': address.city.name,
-                # 'district_id': address.district_id,
+                'district_id': address.district_id,
                 'district': address.district.name,
                 'place': address.place,
                 'mobile': address.mobile,
@@ -262,7 +263,7 @@ class AddressView(LoginRequiredMixin, View):
 
         context = {
             'addresses': address_list,
-            'default_address_id': user.default_address.id
+            'default_address_id': user.default_address_id
         }
         return render(request, 'user_center_site.html', context)
 
@@ -499,3 +500,63 @@ class ChangePasswordView(LoginRequiredView):
         return response
 
 
+class UserBrowseHistory(View):
+    '''用户浏览记录'''
+
+    def post(self, request):
+        # 判断当前用户是否登录
+        user = request.user
+        if not user.is_authenticated:
+            return http.HttpResponseForbidden('用户未登录')
+
+        # 获取请求体中的sku_id
+        json_dict = json.loads(request.body.decode())
+        sku_id = json_dict.get('sku_id')
+
+        # 检验sku_id
+        try:
+            sku = SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return http.HttpResponseForbidden('商品不存在')
+
+        # 创建redis连接对象
+        redis_coon = get_redis_connection('history')
+        pl = redis_coon.pipeline()
+        key = 'history_%s' % user.id
+        # 先去重
+        pl.lrem(key, 0 , sku_id)
+        # 存储到列表的开头
+        pl.lpush(key, sku_id)
+        # 截取前5个
+        pl.ltrim(key, 0, 4)
+        # 执行管道
+        pl.execute()
+        # 响应
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK'})
+
+    def get(self, request):
+        '''查询用户浏览记录'''
+
+        user = request.user
+        # 创建redis连接对象
+        redis_coon = get_redis_connection('history')
+
+        # 获取当前登录用户的浏览记录列表数据 [sku_id1, sku_id2]
+        sku_id_qs = redis_coon.lrange('history_%s' % user.id, 0, -1)
+
+        # 通过sku_id查询sku,再将sku模型转换成字典
+        # 用来装每一个sku字典
+        skus = []
+        for sku_id in sku_id_qs:
+            sku = SKU.objects.get(id=sku_id)
+            sku_dict = {
+
+                'id': sku.id,
+                'name': sku.name,
+                'default_image_url': sku.default_image.url,
+                'price': sku.price
+
+            }
+            skus.append(sku_dict)
+        # 响应
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': 'OK', 'skus': skus})

@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'haystack', # 全文检索
+    
     'users', # 用户模块
     'oauth', # QQ登录模块
     'areas',# 地区模块
@@ -96,7 +99,8 @@ DATABASES = {
         'PORT': 3306, # 数据库端口
         'USER': 'root', # 数据库用户名
         'PASSWORD': 'mysql', # 数据库用户密码
-        'NAME': 'meiduo_mall' # 数据库名字
+        'NAME': 'meiduo_mall', # 数据库名字
+
     },
 }
 
@@ -167,6 +171,20 @@ CACHES = {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "history": { # 用户浏览记录
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.79.137:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "carts": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.79.137:6379/4",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+    }
+},
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache" # 配置session使用缓存
 SESSION_CACHE_ALIAS = "session" # 缓存到redis
@@ -242,3 +260,16 @@ EMAIL_VERIFY_URL = 'http://www.meiduo.site:8000/emails/verification/'
 # 修改Django的文件存储类
 DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
 FDFS_BASE_URL = 'http://192.168.79.137:8888/'
+
+
+# Haystack
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://192.168.79。137:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        'INDEX_NAME': 'meiduo_mall', # Elasticsearch建立的索引库的名称
+    },
+}
+
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
