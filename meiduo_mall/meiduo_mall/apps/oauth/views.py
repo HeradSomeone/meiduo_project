@@ -7,6 +7,8 @@ from django.contrib.auth import login
 from django_redis import get_redis_connection
 
 from QQLoginTool.QQtool import OAuthQQ
+
+from carts.utils import merge_cart_cookie_to_redis
 from oauth.models import OAuthQQUser
 from meiduo_mall.utils.response_code import RETCODE
 from oauth.utils import generate_openid_signature, check_openid_sign
@@ -81,6 +83,8 @@ class OAuthUserView(View):
             next = state
             response = redirect(next,'/')
             response.set_cookie('username', user.username, max_age=settings.SESSION_COOKIE_AGE)
+            # 登录成功时 合并购物车
+            merge_cart_cookie_to_redis(request, user, response)
             return response
 
 
@@ -137,4 +141,6 @@ class OAuthUserView(View):
         login(request,user)
         response = redirect(request.GET.get('state'))
         response.set_cookie('username', user.username, max_age=settings.SESSION_COOKIE_AGE)
+        # 登录成功时 合并购物车
+        merge_cart_cookie_to_redis(request, user, response)
         return response

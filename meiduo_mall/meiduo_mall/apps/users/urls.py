@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^emails/verification/$', views.VerifyEmailView.as_view()),
 
     # 收货地址
-    url(r'^addresses/$', views.AddressView.as_view()),
+    url(r'^addresses/$', views.AddressView.as_view(), name='address'),
 
     # 创建收货地址
     url(r'^addresses/create/$', views.CreateAddressView.as_view()),
