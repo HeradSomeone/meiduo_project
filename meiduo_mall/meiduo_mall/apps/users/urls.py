@@ -49,4 +49,7 @@ urlpatterns = [
     # 用户浏览记录
     url(r'^browse_histories/$', views.UserBrowseHistory.as_view()),
 
+    # 订单中心
+    url(r'^orders/info/(?P<page_num>\d+)/$', views.UserOrderInfoView.as_view()),
+
 ]
