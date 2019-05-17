@@ -11,5 +11,5 @@ urlpatterns = [
     url(r'^carts/selection/$', views.CartsSelectAllView.as_view()),
 
     # 购物车简单展示
-    url(r'^carts/simple/$', views.CartsSimpleView.as_view()),
+    url(r'^carts/simple/$', views.CartsSimpleView.as_view(),name='info'),
 ]
