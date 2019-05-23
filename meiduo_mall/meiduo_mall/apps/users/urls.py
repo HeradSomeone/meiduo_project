@@ -46,6 +46,21 @@ urlpatterns = [
     # 修改密码
     url(r'^password/$', views.ChangePasswordView.as_view()),
 
+    # 找回密码页面展示
+    url(r'^find_password/$', views.ShowFindPassword.as_view()),
+
+    # 验证用户名
+    url(r'^accounts/(?P<username>[a-zA-Z0-9_-]{5,20})/sms/token/$', views.CheckUsername.as_view()),
+
+    # 发送手机验证码
+    url(r'^sms_codes/$', views.MobileCode.as_view()),
+
+    # 校验验证码
+    url(r'^accounts/(?P<username>[a-zA-Z0-9_-]{5,20})/password/token/$', views.CheckMobile.as_view()),
+
+    # 设置新密码
+    url(r'^users/(?P<user_id>\d+)/password/$', views.SetNewPwd.as_view()),
+
     # 用户浏览记录
     url(r'^browse_histories/$', views.UserBrowseHistory.as_view()),
 

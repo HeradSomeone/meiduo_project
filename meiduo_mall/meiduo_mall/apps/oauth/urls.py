@@ -8,5 +8,5 @@ urlpatterns = [
     url(r'^qq/authorization/$', views.OAuthURLView.as_view()),
 
     # 获取回调页面
-    url(r'^oauth_callback$', views.OAuthUserView.as_view()),
+    url(r'^oauth_callback/$', views.OAuthUserView.as_view()),
 ]

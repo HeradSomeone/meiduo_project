@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^', include('contents.urls', namespace='contents')), # 首页模块
     url(r'^', include('verifications.urls', namespace='verifications')), # 验证码模块
     url(r'^', include('oauth.urls', namespace='oauth')), # QQ登录模块
+    url(r'^', include('sina.urls', namespace='sina')), # sina登录模块
     url(r'^', include('areas.urls', namespace='areas')), # 收货地址模块
     url(r'^', include('goods.urls', namespace='goods')), # 商品模块
     url(r'^', include('carts.urls', namespace='carts')), # 购物车模块

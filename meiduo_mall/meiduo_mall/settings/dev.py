@@ -16,11 +16,11 @@ import os, sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # Users/young/Desktop/meiduo_project/meiduo_mall/meiduo_mall
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# print(sys.path)
+print(BASE_DIR)
 
 # 追加导包路径
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
-# print(sys.path)
+print(sys.path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'users', # 用户模块
     'oauth', # QQ登录模块
+    'sina', # 新浪登录模块
     'areas',# 地区模块
     'goods', # 商品模块
     'contents',# 首页模块
@@ -248,6 +249,11 @@ LOGIN_URL = '/login/'
 QQ_CLIENT_ID = '101518219'
 QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
 QQ_REDIRECT_URI = 'http://www.meiduo.site:8000/oauth_callback'
+
+# 新浪登录参数
+SINA_CLIENT_ID = '3683610708'
+SINA_CLIENT_SECRET = 'c56b64dc1fe3be5d8b1dc2172dac14e5'
+SINA_REDIRECT_URI = 'http://www.meiduo.site:8000/sina_callback'
 
 # 邮箱设置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 指定邮件后端

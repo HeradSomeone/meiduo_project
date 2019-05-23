@@ -1,4 +1,5 @@
 import re, json
+from random import randint
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -10,7 +11,7 @@ import logging
 from django.contrib.auth import login, authenticate, logout
 from django_redis import get_redis_connection
 from django.conf import settings
-from django.contrib.auth import mixins
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 from goods.models import SKU
 from meiduo_mall.utils.views import LoginRequiredView
@@ -501,6 +502,7 @@ class ChangePasswordView(LoginRequiredView):
         logout(request)
         response = redirect('/login/')
         response.delete_cookie('username')
+        print(response)
 
         return response
 
@@ -611,3 +613,138 @@ class UserOrderInfoView(LoginRequiredView):
         }
 
         return render(request, 'user_center_order.html', context)
+
+
+class ShowFindPassword(View):
+    '''找回密码页面渲染'''
+
+    def get(self,request):
+
+
+        return render(request, 'find_password.html')
+
+
+class CheckUsername(View):
+    '''验证用户名'''
+
+    def get(self, request, username):
+
+        text = request.GET.get('text')
+        image_code_id = request.GET.get('image_code_id')
+
+        redis_coon = get_redis_connection('verify_code')
+        redis_image = redis_coon.get('img_%s' % image_code_id)
+        if redis_image.decode().lower() != text.lower():
+            return http.JsonResponse({'message':'验证码错误'},status=400)
+        else:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return http.JsonResponse({'message':'用户错误'},status=404)
+
+            serializer = Serializer(settings.SECRET_KEY, 300)
+            data = {
+
+                'mobile': user.mobile
+
+            }
+            access_token = serializer.dumps(data).decode()
+
+            context = {
+
+                'mobile': user.mobile,
+                'access_token': access_token
+
+            }
+            return http.JsonResponse(context)
+
+
+class MobileCode(View):
+    '''获取短信验证码'''
+
+    def get(self, request,):
+
+        access_token = request.GET.get('access_token')
+
+        serializer = Serializer(settings.SECRET_KEY, 300)
+
+        data = serializer.loads(access_token)
+
+        mobile = data['mobile']
+
+        redis_conn = get_redis_connection('verify_code')
+
+        sms_code = '%06d' % randint(0,999999)
+        logger.info(sms_code)
+
+        redis_conn.setex('sms_%s' % mobile, 300, sms_code)
+
+        return http.JsonResponse({'message': 'OK'})
+
+
+class CheckMobile(View):
+    '''校验短信验证码'''
+
+    def get(self, request, username):
+
+        user = User.objects.get(username=username)
+        sms_code = request.GET.get('sms_code')
+        mobile = user.mobile
+
+        redis_conn = get_redis_connection('verify_code')
+        redis_sms_code = redis_conn.get('sms_%s' %mobile)
+
+        if sms_code is None or sms_code != redis_sms_code.decode():
+            return http.JsonResponse({'message': '短信验证码错误'},status=400)
+        else:
+            serializer = Serializer(settings.SECRET_KEY, 300)
+            data = {
+
+
+                'mobile': user.mobile,
+
+            }
+            access_token = serializer.dumps(data).decode()
+
+            context = {
+                'user_id': user.id,
+                'access_token': access_token
+            }
+            return http.JsonResponse(context)
+
+
+class SetNewPwd(View):
+    '''设置新密码'''
+
+    def post(self, request, user_id):
+
+        json_dict = json.loads(request.body.decode())
+        password = json_dict.get('password')
+        password2 = json_dict.get('password2')
+        access_token = json_dict.get('access_token')
+
+        serializer = Serializer(settings.SECRET_KEY, 300)
+        data = serializer.loads(access_token)
+        mobile = data['mobile']
+        try:
+            user = User.objects.get(mobile=mobile)
+        except User.DoesNotExist:
+            return http.JsonResponse({'message':'用户错误'},status=404)
+
+        if all([password, password2, access_token]) is False:
+            return http.HttpResponseForbidden('缺少必传参数')
+
+        if not re.match(r'^[0-9A-Za-z]{8,20}$', password):
+            return http.HttpResponseForbidden('请输入8-20位的密码')
+
+        if password != password2:
+            return http.HttpResponseForbidden('两次输入的密码不一致')
+
+        user.set_password(password)
+        user.save()
+        # response = redirect('/login/')
+
+        return http.JsonResponse({'message': 'OK'})
+
+
+

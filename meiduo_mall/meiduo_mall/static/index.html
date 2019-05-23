@@ -10,6 +10,19 @@
     <script type="text/javascript" src="/static/js/vue-2.5.16.js"></script>
     <script type="text/javascript" src="/static/js/axios-0.18.0.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script src='//kefu.easemob.com/webim/easemob.js?configId=8355da7b-2b10-4390-ba21-8a3360dbd76b'></script>
+    <script>
+        window.easemobim = window.easemobim || {};
+        easemobim.config = {
+            hide: true,
+            autoConnect: true,
+            configId: '8355da7b-2b10-4390-ba21-8a3360dbd76b'
+
+        }
+    </script>
+
+
+    <script src='//kefu.easemob.com/webim/easemob.js'></script>
 </head>
 <body>
 <div id="app" v-cloak>
@@ -35,6 +48,9 @@
                     <a href="/carts/">我的购物车</a>
                     <span>|</span>
                     <a href="/orders/info/1/">我的订单</a>
+                    <span>|</span>
+                    <a href='javascript:' onclick='easemobim.bind({configId: "304fe7b6-3046-416b-b169-0398f647b90e"})'>联系客服</a>
+
                 </div>
             </div>
         </div>

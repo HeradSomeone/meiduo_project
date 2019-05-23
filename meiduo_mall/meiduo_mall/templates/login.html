@@ -43,6 +43,10 @@
                         <div class="more_input clearfix">
                             <input type="checkbox" v-model="remembered" name="remembered">
                             <label>记住登录</label>
+                            <span class="forget-pw-safe">
+                                <a href="/find_password/" target="_blank">忘记密码</a>
+                            </span>
+
                         </div>
                         <input type="submit" value="登 录" class="input_submit">
                     </form>
@@ -51,6 +55,9 @@
             <div class="third_party">
                 <a @click="qq_login" class="qq_login">QQ</a>
                 <a href="#" class="weixin_login">微信</a>
+                <a class="sina_login" @click="sina_login" >
+                        <img src="https://timg.sjs.sinajs.cn/t4/appstyle/widget/images/loginButton/loginButton_24.png">
+                </a >
                 <a href="{{ url('users:register') }}" class="register_btn">立即注册</a>
             </div>
 
